@@ -4,15 +4,15 @@ pragma solidity ^0.8.20;
 import {IERC721Receiver} from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import {IERC404} from "./interfaces/IERC404.sol";
-import {DoubleEndedQueue} from "./lib/DoubleEndedQueue.sol";
+// import {DoubleEndedQueue} from "./lib/DoubleEndedQueue.sol";
 import {ERC721Events} from "./lib/ERC721Events.sol";
 import {ERC20Events} from "./lib/ERC20Events.sol";
 
 abstract contract ERC404 is IERC404 {
-  using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
+  // using DoubleEndedQueue for DoubleEndedQueue.Uint256Deque;
 
-  /// @dev The queue of ERC-721 tokens stored in the contract.
-  DoubleEndedQueue.Uint256Deque private _storedERC721Ids;
+  // /// @dev The queue of ERC-721 tokens stored in the contract.
+  // DoubleEndedQueue.Uint256Deque private _storedERC721Ids;
 
   /// @dev Token name
   string public name;
@@ -129,26 +129,27 @@ abstract contract ERC404 is IERC404 {
     return minted;
   }
 
-  function getERC721QueueLength() public view virtual returns (uint256) {
-    return _storedERC721Ids.length();
-  }
+  // Remove Queue functionality
+  // function getERC721QueueLength() public view virtual returns (uint256) {
+  //   return _storedERC721Ids.length();
+  // }
 
-  function getERC721TokensInQueue(
-    uint256 start_,
-    uint256 count_
-  ) public view virtual returns (uint256[] memory) {
-    uint256[] memory tokensInQueue = new uint256[](count_);
+  // function getERC721TokensInQueue(
+  //   uint256 start_,
+  //   uint256 count_
+  // ) public view virtual returns (uint256[] memory) {
+  //   uint256[] memory tokensInQueue = new uint256[](count_);
 
-    for (uint256 i = start_; i < start_ + count_; ) {
-      tokensInQueue[i - start_] = _storedERC721Ids.at(i);
+  //   for (uint256 i = start_; i < start_ + count_; ) {
+  //     tokensInQueue[i - start_] = _storedERC721Ids.at(i);
 
-      unchecked {
-        ++i;
-      }
-    }
+  //     unchecked {
+  //       ++i;
+  //     }
+  //   }
 
-    return tokensInQueue;
-  }
+  //   return tokensInQueue;
+  // }
 
   /// @notice tokenURI must be implemented by child contract
   function tokenURI(uint256 id_) public view virtual returns (string memory);
@@ -673,11 +674,11 @@ abstract contract ERC404 is IERC404 {
 
     uint256 id;
 
-    if (!_storedERC721Ids.empty()) {
-      // If there are any tokens in the bank, use those first.
-      // Pop off the end of the queue (FIFO).
-      id = _storedERC721Ids.popBack();
-    } else {
+    // if (!_storedERC721Ids.empty()) {
+    //   // If there are any tokens in the bank, use those first.
+    //   // Pop off the end of the queue (FIFO).
+    //   id = _storedERC721Ids.popBack();
+    // } else {
       // Otherwise, mint a new token, should not be able to go over the total fractional supply.
       ++minted;
 
@@ -687,7 +688,7 @@ abstract contract ERC404 is IERC404 {
       }
 
       id = ID_ENCODING_PREFIX + minted;
-    }
+    // }
 
     address erc721Owner = _getOwnerOf(id);
 
@@ -718,7 +719,7 @@ abstract contract ERC404 is IERC404 {
     _transferERC721(from_, address(0), id);
 
     // Record the token in the contract's bank queue.
-    _storedERC721Ids.pushFront(id);
+    // _storedERC721Ids.pushFront(id);
   }
 
   /// @notice Initialization function to set pairs / etc, saving gas by avoiding mint / burn on unnecessary targets

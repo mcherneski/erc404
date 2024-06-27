@@ -66,11 +66,6 @@ interface IERC404 is IERC165 {
   ) external returns (bool);
   function erc721TransferFrom(address from_, address to_, uint256 id_) external;
   function transfer(address to_, uint256 amount_) external returns (bool);
-  function getERC721QueueLength() external view returns (uint256);
-  function getERC721TokensInQueue(
-    uint256 start_,
-    uint256 count_
-  ) external view returns (uint256[] memory);
   function setSelfERC721TransferExempt(bool state_) external;
   function safeTransferFrom(address from_, address to_, uint256 id_) external;
   function safeTransferFrom(

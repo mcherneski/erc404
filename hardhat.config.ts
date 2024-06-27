@@ -11,10 +11,11 @@ const config: HardhatUserConfig = {
     enabled: true,
   },
   networks: {
-    sepolia: {
-      url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts: [process.env.SEPOLIA_PRIVATE_KEY_1],
-    },
+    hardhat: {},
+    // sepolia: {
+    //   url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+    //   accounts: [process.env.SEPOLIA_PRIVATE_KEY_1],
+    // },
   },
 }
 
