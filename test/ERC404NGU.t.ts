@@ -5,7 +5,6 @@ import { ethers, network } from 'hardhat'
 describe('NumberGoUp', function () {
     async function deployNGUUniswapV3() {
         const signers = await ethers.getSigners()
-        console.log('Signers: ', signers)
 
         //Deploy Uniswap v3 Factory
         const uniswapV3FactorySource = require('@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json')
@@ -109,6 +108,23 @@ describe('NumberGoUp', function () {
           }
     }
 
+    async function deployNGU404WithSomeTokensTransferredToRandomAddress() {
+        const f = await loadFixture(deployNGUUniswapV3)
+
+        const targetAddress = f.randomAddresses[0]
+
+        await f.contract
+        .connect(f.signers[0])
+        .transfer(targetAddress, 5n * f.deployConfig.units)
+
+        expect(await f.contract.erc721TotalSupply()).to.equal(5n)
+
+        return {
+            ...f,
+            targetAddress,
+        }
+    }
+    
     describe('Constructor', function () {
         it('Adds the uniswap v3 NFT position manager to the ERC-721 transfer exempt list', async function () {
             const fixture = await loadFixture(deployNGUUniswapV3)
@@ -147,6 +163,47 @@ describe('NumberGoUp', function () {
                         await f.contract.erc721TransferExempt(await expectedPairAddress)
                     ).to.equal(true)
                 }
+        })
+    }),
+    describe('ERC20TotalSupply', function () {
+        it('Returns the correct total supply', async function () {
+            const f = await loadFixture(
+                deployNGU404WithSomeTokensTransferredToRandomAddress
+            )
+
+            expect(await f.contract.erc20TotalSupply()).to.eq(
+                100n * f.deployConfig.units,
+            )
+        })
+    }),
+
+    describe('ERC721TotalSupply', function () {
+        it('Returns the correct total supply', async function () {
+            const f = await loadFixture(
+                deployNGU404WithSomeTokensTransferredToRandomAddress
+            )
+
+            expect(await f.contract.erc721TotalSupply()).to.eq(5n)
+        })
+    })
+    
+    describe('OwnerOf', function() {
+        context('Some tokens have been minted', function () {
+            it('Reverts if the token ID is below the allowed range', async function () {
+                const f = await loadFixture(
+                    deployNGU404WithSomeTokensTransferredToRandomAddress
+                )
+
+                const minimumValidTokenId = (await f.contract.ID_ENCODING_PREFIX()) + 1n
+
+                expect(await f.contract.ownerOf(minimumValidTokenId)).to.eq(
+                    f.targetAddress
+                )
+
+                await expect(
+                    f.contract.ownerOf(minimumValidTokenId - 1n),
+                ).to.be.revertedWithCustomError(f.contract, 'InavalidTokenId')
+            })
         })
     })
 })
