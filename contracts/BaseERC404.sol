@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ERC404} from "../ERC404.sol";
+import {ERC404} from "./ERC404.sol";
 
-contract ERC404Example is Ownable, ERC404 {
+contract BaseERC404 is Ownable, ERC404 {
   constructor(
     string memory name_,
     string memory symbol_,
