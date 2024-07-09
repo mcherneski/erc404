@@ -12,10 +12,16 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {},
-    // sepolia: {
-    //   url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-    //   accounts: [process.env.SEPOLIA_PRIVATE_KEY_1],
-    // },
+    baseSepolia: {
+      url: `https://base-sepolia.g.alchemy.com/v2/M5y_DXUzx2zGDQDALv2MT0VKAmRN1oTZ`,
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY as string],
+      loggingEnabled: true,
+    },
+    base: {
+      url: 'https://base-mainnet.g.alchemy.com/v2/M5y_DXUzx2zGDQDALv2MT0VKAmRN1oTZ',
+      accounts: [process.env.MAINNET_PRIVATE_KEY as string],
+      loggingEnabled: true,
+    }
   },
 }
 

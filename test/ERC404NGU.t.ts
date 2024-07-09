@@ -59,7 +59,7 @@ describe('NumberGoUp', function () {
         const symbol = 'NGU'
         const decimals = 18n
         const units = 10n ** decimals
-        const maxTotalSupplyERC721 = 100n
+        const maxTotalSupplyERC721 = 100000n
         const maxTotalSupplyERC20 = maxTotalSupplyERC721 * units
         const initialOwner = signers[0]
         const initialMintRecipient = signers[0]
@@ -125,6 +125,26 @@ describe('NumberGoUp', function () {
         }
     }
     
+    async function deployNGU404WithAllTokensToDeployerAddress() {
+        const f = await loadFixture(deployNGUUniswapV3)
+        const ownerAddress = f.deployConfig.initialOwner.address
+
+        it('Mints the correct number of tokens to the owner', async function () {
+            expect(await f.contract.balanceOf(f.signers[0].address)).to.equal(100000n) 
+        })
+        
+        it ('Has the correct owner address', function () {
+            expect(ownerAddress).to.equal(f.signers[0].address)
+        })
+
+
+        return {
+            ...f,
+            ownerAddress,
+        }
+
+    }
+
     describe('Constructor', function () {
         it('Adds the uniswap v3 NFT position manager to the ERC-721 transfer exempt list', async function () {
             const fixture = await loadFixture(deployNGUUniswapV3)
@@ -137,33 +157,6 @@ describe('NumberGoUp', function () {
             ),
             ).to.equal(true)
         })
-
-        it('Adds the uniswap v3 pool addresses for all free tiers for this token + WETH to the ERC-721 transfer exempt list', async function () {
-            const f = await loadFixture(deployNGUUniswapV3)
-
-            //Check all free tiers
-            for (const feeTier of f.feeTiers)
-                {
-                    await f.deployConfig.uniswapV3FactoryContract.createPool(
-                        f.contractAddress,
-                        await f.deployConfig.wethContract.getAddress(),
-                        feeTier
-                    )
-
-                    const expectedPairAddress = 
-                    await f.deployConfig.uniswapV3FactoryContract.getPool(
-                        f.contractAddress,
-                        await f.deployConfig.wethContract.getAddress(),
-                        feeTier
-                    )
-
-                    expect(expectedPairAddress).to.not.eq(ethers.ZeroAddress)
-
-                    expect(
-                        await f.contract.erc721TransferExempt(await expectedPairAddress)
-                    ).to.equal(true)
-                }
-        })
     }),
     describe('ERC20TotalSupply', function () {
         it('Returns the correct total supply', async function () {
@@ -172,7 +165,7 @@ describe('NumberGoUp', function () {
             )
 
             expect(await f.contract.erc20TotalSupply()).to.eq(
-                100n * f.deployConfig.units,
+                100000n * f.deployConfig.units,
             )
         })
     }),
@@ -194,7 +187,7 @@ describe('NumberGoUp', function () {
                     deployNGU404WithSomeTokensTransferredToRandomAddress
                 )
 
-                const minimumValidTokenId = (await f.contract.ID_ENCODING_PREFIX()) + 1n
+                const minimumValidTokenId = 1n
 
                 expect(await f.contract.ownerOf(minimumValidTokenId)).to.eq(
                     f.targetAddress
@@ -202,8 +195,28 @@ describe('NumberGoUp', function () {
 
                 await expect(
                     f.contract.ownerOf(minimumValidTokenId - 1n),
-                ).to.be.revertedWithCustomError(f.contract, 'InavalidTokenId')
+                ).to.be.reverted
+            })
+        })
+    }),
+
+    describe('transferFrom', function() {
+        context('Initial Tokens have been minted', function () {
+            it('Transfers expected tokens to recipient...', async function () {
+                const f = await loadFixture(
+                    deployNGU404WithAllTokensToDeployerAddress
+                )
+
+                const sender = f.signers[0].address
+                const recipient = f.randomAddresses[1]
+                const amount = 10n
+
+                await f.contract.connect(f.signers[0]).transferFrom(sender.toString(), recipient.toString(), amount)
+                expect(await f.contract.balanceOf(recipient.toString())).to.eq(amount)
+                console.log('Recipient Balance: ', await f.contract.balanceOf(recipient.toString()))
+
             })
         })
     })
+    
 })

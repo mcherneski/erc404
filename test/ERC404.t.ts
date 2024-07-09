@@ -5,18 +5,18 @@ import { ethers, network } from "hardhat"
 describe("ERC404", function () {
   async function deployERC404Example() {
     const signers = await ethers.getSigners()
-    const factory = await ethers.getContractFactory("ERC404Example")
+    const factory = await ethers.getContractFactory("NumberGoUp")
 
-    const name = "Example"
-    const symbol = "EX-A"
+    const name = "NumberGoUp"
+    const symbol = "NGU"
     const decimals = 18n
     const units = 10n ** decimals
-    const maxTotalSupplyERC721 = 100n
+    const maxTotalSupplyERC721 = 100000n
     const maxTotalSupplyERC20 = maxTotalSupplyERC721 * units
     const initialOwner = signers[0]
     const initialMintRecipient = signers[0]
-    const idPrefix =
-      57896044618658097711785492504343953926634992332820282019728792003956564819968n
+    const uniswapRouter = '0x050E797f3625EC8785265e1d9BDd4799b97528A1'
+    const uniswapNFPM = '0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2'
 
     const contract = await factory.deploy(
       name,
@@ -25,6 +25,8 @@ describe("ERC404", function () {
       maxTotalSupplyERC721,
       initialOwner.address,
       initialMintRecipient.address,
+      uniswapRouter,
+      uniswapNFPM,
     )
     await contract.waitForDeployment()
     const contractAddress = await contract.getAddress()
